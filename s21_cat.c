@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-// переписать на обычные флаги и везде поменять
-struct Flags {
+void printSymbol(char c);
+
+struct FlagsOption {
     int numberNonblank;
     int printUnprintable;
     int overwriteEnd;
@@ -12,8 +13,13 @@ struct Flags {
     int overwriteTab;
 };
 
+struct FlagsCondition {
+    int isCombinaton;
+    int isStartOfString;
+};
+
 int main(int argc, char *argv[]) {
-    struct Flags flags;
+    struct FlagsOption flags;
     char *paths[argc];
     int filesCount = 0;
     for (int i = 1; i < argc - 1; i++) {
@@ -67,10 +73,10 @@ int main(int argc, char *argv[]) {
     int isCombination = 0;
     char c;
     FILE *stream;
-    if (paths) {
-        for (int i = 0; i < filesCount - 1; i++) {
+    if (filesCount) {
+        for (int i = 0; i < filesCount; i++) {
             stream = fopen(paths[i], "r");
-            while (c = fgetc(stream)) {
+            while ((c = fgetc(stream)) != -1) {
                 if (c == '\n' && isStartOfString && flags.squeezeBlank) {
                     if (!isPreviousStringEmpty) {
                         isPreviousStringEmpty = 1;
@@ -85,6 +91,12 @@ int main(int argc, char *argv[]) {
                     } else if (flags.number) {
                         printf("%d", numberOfString);
                         numberOfString++;
+                        isStartOfString = 0;
+                    } else if (c >= 32 && c <= 126 && !flags.printUnprintable) {
+                        printf("%c", c);
+                        isStartOfString = 0;
+                    } else {
+                        printf("^X");
                         isStartOfString = 0;
                     }
                 } else {
@@ -107,6 +119,7 @@ int main(int argc, char *argv[]) {
                         isStartOfString = 0;
                     } else if (flags.printUnprintable){
                         printf("^X");
+                        isStartOfString = 0;
                     }
                 }
             }
@@ -126,10 +139,50 @@ int main(int argc, char *argv[]) {
                         printf("%d", numberOfString);
                         numberOfString++;
                         isStartOfString = 0;
+                        if (c == '\t' && flags.overwriteTab) {
+                            printf("^I");
+                        } else if (c == '\r') {
+                            if (flags.printUnprintable && flags.overwriteEnd) isCombination = 1;
+                        } else if (c == '\n') {
+                            if (isCombination) {
+                                printf("^M$");
+                                isCombination = 0;
+                            }
+                            else if (flags.printUnprintable && flags.overwriteEnd) printf("$");
+                            printf("\n");
+                            isStartOfString = 1;
+                        } else if (isCombination || c == '\0') {
+                            printf("$");
+                        } else if (c >= 32 && c <= 126) {
+                            printf("%c", c);
+                            isStartOfString = 0;
+                        } else if (flags.printUnprintable){
+                            printf("^X");
+                        }
                     } else if (flags.number) {
                         printf("%d", numberOfString);
                         numberOfString++;
                         isStartOfString = 0;
+                        if (c == '\t' && flags.overwriteTab) {
+                            printf("^I");
+                        } else if (c == '\r') {
+                            if (flags.printUnprintable && flags.overwriteEnd) isCombination = 1;
+                        } else if (c == '\n') {
+                            if (isCombination) {
+                                printf("^M$");
+                                isCombination = 0;
+                            }
+                            else if (flags.printUnprintable && flags.overwriteEnd) printf("$");
+                            printf("\n");
+                            isStartOfString = 1;
+                        } else if (isCombination || c == '\0') {
+                            printf("$");
+                        } else if (c >= 32 && c <= 126) {
+                            printf("%c", c);
+                            isStartOfString = 0;
+                        } else if (flags.printUnprintable){
+                            printf("^X");
+                        }
                     }
                 } else {
                     if (c == '\t' && flags.overwriteTab) {
@@ -155,5 +208,28 @@ int main(int argc, char *argv[]) {
                 }
             }
     }
-    return 1;
+    return 0;
+}
+
+void printSymbol(char c, struct FlagsOption flagsO, struct FlagsCondition flagsC) {
+    if (c == '\t' && flagsO.overwriteTab) {
+                        printf("^I");
+                    } else if (c == '\r') {
+                        if (flagsO.printUnprintable && flags.overwriteEnd) isCombination = 1;
+                    } else if (c == '\n') {
+                        if (isCombination) {
+                            printf("^M$");
+                            isCombination = 0;
+                        }
+                        else if (flagsO.printUnprintable && flagsO.overwriteEnd) printf("$");
+                        printf("\n");
+                        isStartOfString = 1;
+                    } else if (isCombination || c == '\0') {
+                        printf("$");
+                    } else if (c >= 32 && c <= 126) {
+                        printf("%c", c);
+                        isStartOfString = 0;
+                    } else if (flagsO.printUnprintable){
+                        printf("^X");
+                    }
 }
