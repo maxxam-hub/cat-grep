@@ -1,16 +1,33 @@
+#include "s21_grep.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#define LINE_BUFFER 1024
+int main(int argc, char *argv[]) {
+  int exit_code = 0;
 
-typedef struct {
-  int e;
-  int i;
-  int v;
-  int c;
-  int l;
-  int n;
-} GrepFlags;
+  if (argc < 3) {
+    exit_code = 1;
+  } else {
+    GrepFlags flags = {0};
+    char *pattern = NULL;
+    int file_start = 0;
+
+    parse_flags(argc, argv, &flags, &pattern, &file_start);
+
+    if (pattern == NULL || file_start >= argc) {
+      exit_code = 1;
+    } else {
+      int many_files = (argc - file_start > 1);
+
+      for (int i = file_start; i < argc; i++) {
+        grep_file(argv[i], pattern, flags, many_files);
+      }
+    }
+  }
+
+  return exit_code;
+}
 
 void parse_flags(int argc, char *argv[], GrepFlags *flags, char **pattern,
                  int *file_start) {
@@ -121,30 +138,4 @@ void grep_file(const char *filename, const char *pattern, GrepFlags flags,
 
     fclose(file);
   }
-}
-
-int main(int argc, char *argv[]) {
-  int exit_code = 0;
-
-  if (argc < 3) {
-    exit_code = 1;
-  } else {
-    GrepFlags flags = {0};
-    char *pattern = NULL;
-    int file_start = 0;
-
-    parse_flags(argc, argv, &flags, &pattern, &file_start);
-
-    if (pattern == NULL || file_start >= argc) {
-      exit_code = 1;
-    } else {
-      int many_files = (argc - file_start > 1);
-
-      for (int i = file_start; i < argc; i++) {
-        grep_file(argv[i], pattern, flags, many_files);
-      }
-    }
-  }
-
-  return exit_code;
 }
