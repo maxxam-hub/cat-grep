@@ -2,24 +2,27 @@
 #define S21_CAT_H
 
 typedef struct {
-  int numberNonblank;
-  int printUnprintable;
-  int overwriteEnd;
-  int number;
-  int squeezeBlank;
-  int overwriteTab;
-} FlagsOption;
+  int b;
+  int v;
+  int e;
+  int n;
+  int s;
+  int t;
+} FlagsCat;
 
 typedef struct {
-  int isCombination;
-  int isStartOfString;
-  int isPreviousStringEmpty;
-  int isStdin;
+  int is_combination;
+  int is_start_of_string;
+  int is_previous_string_empty;
+  int is_stdin;
   int error;
 } FlagsCondition;
 
-void printSymbol(int c, FlagsOption *flagsO, FlagsCondition *flagsC);
-void printFirstSymbol(int c, FlagsOption *flagsO, FlagsCondition *flagsC, int *numberOfString);
-void symbolProcessing(int argc, char *argv[], FlagsOption *flagsO, char *paths[argc], int *filesCount, FlagsCondition *flagsC);
+void print_symbol(int c, FlagsCat* flags_cat, FlagsCondition* flags_condition);
+void print_first_symbol(int c, FlagsCat* flags_cat,
+                        FlagsCondition* flags_condition, int* numberOfString);
+void symbol_processing(int argc, char* argv[], FlagsCat* flags_cat,
+                       char* paths[argc], int* files_count,
+                       FlagsCondition* flags_condition);
 
 #endif

@@ -38,7 +38,6 @@ void test_error(void);
 #endif
 
 int main(void) {
-
 #ifdef TEST_BASIC
   test_basic();
 #endif
@@ -84,54 +83,54 @@ int main(void) {
 
 void test_basic(void) {
   printf("TEST: BASIC\n");
-  system("./s21_cat tests/test_blank.txt");
+  system("./s21_cat cat/tests/test_blank.txt");
   printf("\n");
 }
 
 void test_n(void) {
   printf("TEST: -n\n");
-  system("./s21_cat -n tests/test_blank.txt");
+  system("./s21_cat -n cat/tests/test_blank.txt");
   printf("\n");
 }
 
 void test_b(void) {
   printf("TEST: -b\n");
-  system("./s21_cat -b tests/test_mix.txt");
+  system("./s21_cat -b cat/tests/test_mix.txt");
   printf("\n");
 }
 
 void test_s(void) {
   printf("TEST: -s\n");
-  system("./s21_cat -s tests/test_mix.txt");
+  system("./s21_cat -s cat/tests/test_mix.txt");
   printf("\n");
 }
 
 void test_e(void) {
   printf("TEST: -e\n");
-  system("./s21_cat -e tests/test_mix.txt");
+  system("./s21_cat -e cat/tests/test_mix.txt");
   printf("\n");
 }
 
 void test_tab(void) {
   printf("TEST: -t\n");
-  system("./s21_cat -t tests/test_tabs.txt");
+  system("./s21_cat -t cat/tests/test_tabs.txt");
   printf("\n");
 }
 
 void test_print_unprint(void) {
   printf("TEST: -e -v\n");
-  system("./s21_cat -e tests/test_ctrl.txt");
+  system("./s21_cat -e cat/tests/test_ctrl.txt");
   printf("\n");
 }
 
 void test_crlf(void) {
   printf("TEST: -e in bin\n");
-  system("./s21_cat -e tests/test_bin.bin");
+  system("./s21_cat -e cat/tests/test_bin.bin");
   printf("\n");
 }
 
 void test_error(void) {
   printf("TEST: ERROR (no file)\n");
-  system("./s21_cat tests/no_such_file.txt");
+  system("./s21_cat cat/tests/no_such_file.txt");
   printf("\n");
 }

@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   int exit_code = 0;
 
   if (argc < 3) {
     exit_code = 1;
   } else {
     GrepFlags flags = {0};
-    char *pattern = NULL;
+    char* pattern = NULL;
     int file_start = 0;
 
     parse_flags(argc, argv, &flags, &pattern, &file_start);
@@ -29,19 +29,25 @@ int main(int argc, char *argv[]) {
   return exit_code;
 }
 
-void parse_flags(int argc, char *argv[], GrepFlags *flags, char **pattern,
-                 int *file_start) {
+void parse_flags(int argc, char* argv[], GrepFlags* flags, char** pattern,
+                 int* file_start) {
   int i = 1;
 
   while (i < argc && argv[i][0] == '-') {
     int j = 1;
     while (argv[i][j] != '\0') {
-      if (argv[i][j] == 'e') flags->e = 1;
-      else if (argv[i][j] == 'i') flags->i = 1;
-      else if (argv[i][j] == 'v') flags->v = 1;
-      else if (argv[i][j] == 'c') flags->c = 1;
-      else if (argv[i][j] == 'l') flags->l = 1;
-      else if (argv[i][j] == 'n') flags->n = 1;
+      if (argv[i][j] == 'e')
+        flags->e = 1;
+      else if (argv[i][j] == 'i')
+        flags->i = 1;
+      else if (argv[i][j] == 'v')
+        flags->v = 1;
+      else if (argv[i][j] == 'c')
+        flags->c = 1;
+      else if (argv[i][j] == 'l')
+        flags->l = 1;
+      else if (argv[i][j] == 'n')
+        flags->n = 1;
       j++;
     }
     i++;
@@ -53,7 +59,7 @@ void parse_flags(int argc, char *argv[], GrepFlags *flags, char **pattern,
   }
 }
 
-int match(const char *line, const char *pattern, int ignore_case) {
+int match(char* line, char* pattern, int ignore_case) {
   int result = 0;
 
   if (!ignore_case) {
@@ -90,9 +96,9 @@ int match(const char *line, const char *pattern, int ignore_case) {
   return result;
 }
 
-void grep_file(const char *filename, const char *pattern, GrepFlags flags,
+void grep_file(char* filename, char* pattern, GrepFlags flags,
                int print_filename) {
-  FILE *file = fopen(filename, "r");
+  FILE* file = fopen(filename, "r");
   char line[LINE_BUFFER];
   int line_num = 0;
   int match_count = 0;

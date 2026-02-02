@@ -4,29 +4,29 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char *argv[]) {
-  FlagsOption flags = {0};
-  FlagsCondition flagsCondition = {0};
-  flagsCondition.isStartOfString = 1;
-  char *paths[argc];
-  int filesCount = 0;
-  symbolProcessing(argc, argv, &flags, paths, &filesCount, &flagsCondition);
+int main(int argc, char* argv[]) {
+  FlagsCat flags = {0};
+  FlagsCondition flags_condition = {0};
+  flags_condition.is_start_of_string = 1;
+  char* paths[argc];
+  int files_count = 0;
+  symbol_processing(argc, argv, &flags, paths, &files_count, &flags_condition);
 
-  int numberOfString = 1;
+  int number_of_string = 1;
   int c;
-  FILE *stream;
-  if (filesCount) {
-    for (int i = 0; i < filesCount; i++) {
-      if ((stream = fopen(paths[i], "rb")) == NULL || flagsCondition.error) {
+  FILE* stream;
+  if (files_count) {
+    for (int i = 0; i < files_count; i++) {
+      if ((stream = fopen(paths[i], "rb")) == NULL || flags_condition.error) {
         if (stream == NULL) printf("\n%s: No such file or directory", paths[i]);
         fclose(stream);
         return 0;
       } else {
         while ((c = fgetc(stream)) != -1) {
-          if (flagsCondition.isStartOfString) {
-            printFirstSymbol(c, &flags, &flagsCondition, &numberOfString);
+          if (flags_condition.is_start_of_string) {
+            print_first_symbol(c, &flags, &flags_condition, &number_of_string);
           } else {
-            printSymbol(c, &flags, &flagsCondition);
+            print_symbol(c, &flags, &flags_condition);
           }
         }
         fclose(stream);
@@ -34,147 +34,148 @@ int main(int argc, char *argv[]) {
     }
   } else {
     stream = stdin;
-    flagsCondition.isStdin = 1;
+    flags_condition.is_stdin = 1;
     while ((c = getc(stream)) != -1) {
-      if (flagsCondition.isStartOfString) {
-        printFirstSymbol(c, &flags, &flagsCondition, &numberOfString);
+      if (flags_condition.is_start_of_string) {
+        print_first_symbol(c, &flags, &flags_condition, &number_of_string);
       } else {
-        printSymbol(c, &flags, &flagsCondition);
+        print_symbol(c, &flags, &flags_condition);
       }
     }
   }
 }
 
-void printSymbol(int c, FlagsOption *flagsO, FlagsCondition *flagsC) {
-  if (c == '\t' && flagsO->overwriteTab) {
+void print_symbol(int c, FlagsCat* flags_cat, FlagsCondition* flags_condition) {
+  if (c == '\t' && flags_cat->t) {
     printf("^I");
 
   } else if (c == '\r') {
-    if (flagsO->printUnprintable && flagsO->overwriteEnd)
-      flagsC->isCombination = 1;
+    if (flags_cat->v && flags_cat->e) flags_condition->is_combination = 1;
 
   } else if (c == '\n') {
-    flagsC->isPreviousStringEmpty = 0;
+    flags_condition->is_previous_string_empty = 0;
 
-    if (flagsC->isCombination) {
+    if (flags_condition->is_combination) {
       printf("^M$");
-      flagsC->isCombination = 0;
-    } else if (flagsO->overwriteEnd) {
+      flags_condition->is_combination = 0;
+    } else if (flags_cat->e) {
       printf("$");
     }
 
-    flagsC->isStartOfString = 1;
+    flags_condition->is_start_of_string = 1;
     printf("\n");
 
-  } else if (flagsC->isCombination || (c == '\0' && flagsO->printUnprintable)) {
-    flagsC->isStartOfString = 1;
-    flagsC->isCombination = 0;
+  } else if (flags_condition->is_combination || (c == '\0' && flags_cat->v)) {
+    flags_condition->is_start_of_string = 1;
+    flags_condition->is_combination = 0;
     printf("$");
 
   } else if ((c >= 32 && c <= 126) || c == '\t' || c == '\n' || c == '\r') {
     printf("%c", c);
 
-  } else if (flagsO->printUnprintable) {
+  } else if (flags_cat->v) {
     printf("^X");
   }
 }
 
-void printFirstSymbol(int c, FlagsOption *flagsO, FlagsCondition *flagsC,
-                      int *numberOfString) {
+void print_first_symbol(int c, FlagsCat* flags_cat,
+                        FlagsCondition* flags_condition,
+                        int* number_of_string) {
   if (c == '\n') {
-    if (flagsO->squeezeBlank) {
-      if (!flagsC->isPreviousStringEmpty) {
-        if (flagsO->number) {
-          printf("%d", *numberOfString);
-          (*numberOfString)++;
+    if (flags_cat->s) {
+      if (!flags_condition->is_previous_string_empty) {
+        if (flags_cat->n) {
+          printf("     %d  ", *number_of_string);
+          (*number_of_string)++;
         }
-        if (flagsO->overwriteEnd) printf("$");
+        if (flags_cat->e) printf("$");
         printf("\n");
-        flagsC->isPreviousStringEmpty = 1;
+        flags_condition->is_previous_string_empty = 1;
       }
     } else {
-      if (flagsO->number) {
-        printf("%d", *numberOfString);
-        (*numberOfString)++;
+      if (flags_cat->n) {
+        printf("     %d  ", *number_of_string);
+        (*number_of_string)++;
       }
-      if (flagsO->overwriteEnd) printf("$");
+      if (flags_cat->e) printf("$");
       printf("\n");
-      flagsC->isPreviousStringEmpty = 1;
+      flags_condition->is_previous_string_empty = 1;
     }
 
-    flagsC->isStartOfString = 1;
+    flags_condition->is_start_of_string = 1;
     return;
   }
 
-  flagsC->isPreviousStringEmpty = 0;
+  flags_condition->is_previous_string_empty = 0;
 
-  if (flagsO->numberNonblank || flagsO->number) {
-    printf("%d", *numberOfString);
-    (*numberOfString)++;
+  if (flags_cat->b || flags_cat->n) {
+    printf("     %d  ", *number_of_string);
+    (*number_of_string)++;
   }
 
-  if (flagsO->printUnprintable && (c < 32 || c > 126) &&
-      c != '\r' && c != '\t' && c != '\n') {
+  if (flags_cat->v && (c < 32 || c > 126) && c != '\r' && c != '\t' &&
+      c != '\n') {
     printf("^X");
   } else {
-    printSymbol(c, flagsO, flagsC);
+    print_symbol(c, flags_cat, flags_condition);
   }
 
-  flagsC->isStartOfString = 0;
+  flags_condition->is_start_of_string = 0;
 }
 
-void symbolProcessing(int argc, char *argv[], FlagsOption *flagsO,
-                      char *paths[argc], int *filesCount, FlagsCondition *flagsC) {
+void symbol_processing(int argc, char* argv[], FlagsCat* flags_cat,
+                       char* paths[argc], int* files_count,
+                       FlagsCondition* flags_condition) {
   int greatT = 0;
   int greatE = 0;
-  int isNonBlank = 0;
+  int is_non_blank = 0;
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-' && argv[i][1] == '-') {
       if (strcmp(argv[i], "--number-nonblank") == 0) {
-        flagsO->numberNonblank = 1;
-        flagsO->number = 0;
+        flags_cat->b = 1;
+        flags_cat->n = 0;
       } else if (strcmp(argv[i], "--number") == 0) {
-        flagsO->number = 1;
+        flags_cat->n = 1;
       } else if (strcmp(argv[i], "--squeeze-blank") == 0) {
-        flagsO->squeezeBlank = 1;
+        flags_cat->s = 1;
       } else {
         printf("Error: Unexpected GNU option");
-        flagsC->error = 1;
+        flags_condition->error = 1;
       }
     } else if (argv[i][0] == '-') {
       for (int j = 1; j < (int)strlen(argv[i]); j++) {
         if (argv[i][j] == 'b') {
-          flagsO->numberNonblank = 1;
-          flagsO->number = 0;
-          isNonBlank = 1;
+          flags_cat->b = 1;
+          flags_cat->n = 0;
+          is_non_blank = 1;
         } else if (argv[i][j] == 'e') {
-          flagsO->printUnprintable = 1;
-          flagsO->overwriteEnd = 1;
+          flags_cat->v = 1;
+          flags_cat->e = 1;
         } else if (argv[i][j] == 'E') {
-          flagsO->overwriteEnd = 1;
-          flagsO->printUnprintable = 0;
+          flags_cat->e = 1;
+          flags_cat->v = 0;
           greatE = 1;
         } else if (argv[i][j] == 'n') {
-          flagsO->number = 1;
+          flags_cat->n = 1;
         } else if (argv[i][j] == 's') {
-          flagsO->squeezeBlank = 1;
+          flags_cat->s = 1;
         } else if (argv[i][j] == 't') {
-          flagsO->overwriteTab = 1;
-          flagsO->printUnprintable = 1;
+          flags_cat->t = 1;
+          flags_cat->v = 1;
         } else if (argv[i][j] == 'T') {
-          flagsO->overwriteTab = 1;
-          flagsO->printUnprintable = 0;
+          flags_cat->t = 1;
+          flags_cat->v = 0;
           greatT = 1;
         } else {
           printf("\nError: Unexpected option");
-          flagsC->error = 1;
+          flags_condition->error = 1;
         }
       }
-      flagsO->printUnprintable = (greatE || greatT) ? 0 : flagsO->printUnprintable;
-      flagsO->number = isNonBlank ? 0 : flagsO->number;
+      flags_cat->v = (greatE || greatT) ? 0 : flags_cat->v;
+      flags_cat->n = is_non_blank ? 0 : flags_cat->n;
     } else {
-      paths[*filesCount] = argv[i];
-      *filesCount += 1;
+      paths[*files_count] = argv[i];
+      *files_count += 1;
     }
   }
 }
